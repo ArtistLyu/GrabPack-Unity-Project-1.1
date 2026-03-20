@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class PowerPole : MonoBehaviour
 {
     public GameObject glow;
     public float glowcounter = 0.1f;
     public ElectricalSource source;
 
-    public AudioSource GlobalAudio;
+    private AudioSource GlobalAudio;
     public AudioClip connect;
     public AudioClip disconnect;
 
@@ -18,6 +19,12 @@ public class PowerPole : MonoBehaviour
 
 
     private bool wasPowered = false;
+
+    void Awake()
+    {
+        GlobalAudio = GetComponent<AudioSource>();
+
+    }
 
     public void Startglow()
     {
