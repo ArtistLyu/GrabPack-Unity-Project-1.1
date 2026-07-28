@@ -6,17 +6,10 @@ public class TightSpace : MonoBehaviour
 {
 
     public RigidboyPlayerController player;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public AudioSource audiosource;
+    public AudioClip squeezeStart;
+    public AudioClip squeezeEnd;
 
     public void OnTriggerEnter(Collider other)
     {
@@ -29,6 +22,7 @@ public class TightSpace : MonoBehaviour
 
             player.playeranimations.SetBool("squeeze", true);
             player.squeeze = true;
+            audiosource.PlayOneShot(squeezeStart, 1.0f);
         }
     }
 
@@ -43,6 +37,8 @@ public class TightSpace : MonoBehaviour
 
             player.squeeze = false;
             player.playeranimations.SetBool("squeeze", false);
+            audiosource.PlayOneShot(squeezeEnd, 1.0f);
+
         }
     }
 

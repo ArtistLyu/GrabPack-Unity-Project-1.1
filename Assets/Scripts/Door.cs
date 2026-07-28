@@ -8,20 +8,31 @@ public class Door : MonoBehaviour
 
     public AudioClip openSFX;
     public AudioClip closeSFX;
+    public AudioClip lockedSFX;
 
     private AudioSource audioSource;
 
     private bool handTriggered; 
 
+    public bool isOpen = false;
+
     void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+
+    }
+
+    void Start()
+    {
+        if (isOpen && !Locked)
+        {
+            ToggleDoor();
+        }
     }
 
     void Update()
     {
-        if (Locked)
-            return;
+
 
         HandleKeyboard();
         HandleHandInteraction();
@@ -71,17 +82,39 @@ public class Door : MonoBehaviour
 
     public void ToggleDoor()
     {
+        if (!Locked)
+        {
+
+            bool open = animator.GetBool("open");
+
+            animator.SetBool("open", !open);
+
+            if (open)
+            {
+                audioSource.PlayOneShot(closeSFX);
+                isOpen = false;
+            }
+            else
+            {
+                audioSource.PlayOneShot(openSFX);
+                isOpen = true;
+            }
+        }
         if (Locked)
-            return;
+        {
+            animator.SetTrigger("locked");
+            audioSource.PlayOneShot(lockedSFX);
 
-        bool open = animator.GetBool("open");
+        }
+        NoiseEmitter.EmitNoise(transform.position, 0.5f, transform);
 
-        animator.SetBool("open", !open);
 
-        if (open)
-            audioSource.PlayOneShot(closeSFX);
-        else
-            audioSource.PlayOneShot(openSFX);
+    }
+
+    void OnDisable()
+    {
+        Debug.Log("Door disabled!", this);
+        Debug.Log(System.Environment.StackTrace);
     }
 
     public void Unlock()

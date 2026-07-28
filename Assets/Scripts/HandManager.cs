@@ -17,6 +17,7 @@ public class HandManager : MonoBehaviour
 
     private bool lastGrabPackState;
 
+    public string grabpackversion = "none";
 
     void Start()
     {

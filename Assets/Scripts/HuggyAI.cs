@@ -281,20 +281,20 @@ public class HuggyAI : MonoBehaviour
     {
         if (other.transform.CompareTag("Player"))
         {
-            Rigidbody rb = other.GetComponent<Rigidbody>();
-            if (rb == null) return;
-            Jumpscare();
+           // Rigidbody rb = other.GetComponent<Rigidbody>();
+           // if (rb == null) return;
+           // Jumpscare();
         }
     }
 
     void Jumpscare()
     {
-        ChangeState(State.Jumpscare);
+        //ChangeState(State.Jumpscare);
 
-        jumpscareCam.SetActive(true);
-        player.gameObject.SetActive(false);
+       // jumpscareCam.SetActive(true);
+      //  player.gameObject.SetActive(false);
 
-        SettingsManager.Instance.SetActiveCamera(jumpscareCamera);
+       // SettingsManager.Instance.SetActiveCamera(jumpscareCamera);
     }
 
     public void reset()

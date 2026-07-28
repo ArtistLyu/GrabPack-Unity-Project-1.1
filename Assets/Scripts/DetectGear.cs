@@ -19,6 +19,18 @@ public class DetectGear : MonoBehaviour
         if (complete)
             return;
 
+
+        LaunchHand hand = other.GetComponent<LaunchHand>();
+        if (hand != null)
+        {
+            if (hand.battery.TryGetComponent<gear>(out var Gear))
+            {
+                hand.DropBattery();
+
+            }
+
+        }
+
         if (other.gameObject == gearToDetect)
         {
             Destroy(gearToDetect);

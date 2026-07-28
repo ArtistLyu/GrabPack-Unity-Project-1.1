@@ -38,11 +38,23 @@ public class PickupGrabpack : MonoBehaviour
     public RigidboyPlayerController player;
     public MobileIcons mobileicons;
 
+    public SkinnedMeshRenderer rendererToActivate;
+    public SkinnedMeshRenderer rendererToDeactivate;
+    public SkinnedMeshRenderer ExtraArmRenderer;
+    public bool activateExtraArm = false;
+    public string grabpackversion;
+
+    public GameObject otherGrabpack;
+
+    public AudioSource audiosource;
+    public AudioClip pickupSFX;
+
+    public Material ArmMaterial;
 
     public void Pickup()
     {
         gameObject.SetActive(false);
-
+        audiosource.PlayOneShot(pickupSFX, 1.0f);
         BlueHand.SetActive(hasBlueHand);
 
         RedHand.SetActive(false);
@@ -70,6 +82,32 @@ public class PickupGrabpack : MonoBehaviour
 
         handmanager.hasGrabPack = true;
 
+
+        rendererToActivate.enabled = true;
+        rendererToDeactivate.enabled = false;
+        ExtraArmRenderer.material = ArmMaterial;
+
+        if (grabpackversion != handmanager.grabpackversion)
+        {
+            if (handmanager.grabpackversion != "none")
+            {
+                otherGrabpack.transform.position = gameObject.transform.position;
+                otherGrabpack.SetActive(true);
+
+                PickupGrabpack pickupgrabpack = otherGrabpack.GetComponent<PickupGrabpack>();
+
+                pickupgrabpack.hasRedHand = handmanager.hasRedHand;
+                pickupgrabpack.hasBlueHand = handmanager.hasBlueHand;
+                pickupgrabpack.hasPressureHand = handmanager.hasPressureHand;
+                pickupgrabpack.hasPurpleHand = handmanager.hasPurpleHand;
+                pickupgrabpack.hasConductiveHand = handmanager.hasConductiveHand;
+                pickupgrabpack.hasMagnetHand = handmanager.hasMagnetHand;
+                pickupgrabpack.hasFireHand = handmanager.hasFireHand;
+                pickupgrabpack.hasGreenHand = handmanager.hasGreenHand;
+
+            }
+
+        }
         handmanager.hasRedHand = hasRedHand;
         handmanager.hasBlueHand = hasBlueHand;
         handmanager.hasPressureHand = hasPressureHand;
@@ -79,6 +117,8 @@ public class PickupGrabpack : MonoBehaviour
         handmanager.hasFireHand = hasFireHand;
         handmanager.hasGreenHand = hasGreenHand;
 
+        handmanager.grabpackversion = grabpackversion;
+
         player.UpdateHandButtons();
 
         if (mobileicons.isMobile)
@@ -86,7 +126,6 @@ public class PickupGrabpack : MonoBehaviour
             mobileicons.UpdateMobileIcons();
 
         }
-
     }
 
     void Start()
@@ -95,7 +134,9 @@ public class PickupGrabpack : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
-
+        rendererToActivate.enabled = false;
+        rendererToDeactivate.enabled = false;
+        //ExtraArm.SetActive(false);
 
         if (hasBlueHand)
         {

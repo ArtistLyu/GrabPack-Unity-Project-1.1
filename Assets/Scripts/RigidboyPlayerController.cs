@@ -6,9 +6,13 @@ using UnityEngine.UI;
 public class RigidboyPlayerController : MonoBehaviour
 {
     public bool canLook = true;
-
+    public bool StartCrouched = false;
     public float bobSmoothSpeed = 8f;
     private float currentBob;
+    public Transform grabPackManager;
+    public float maxWeaponTilt = 8f;
+    public float weaponTiltSpeed = 10f;
+
 
     public List<LaunchHand> allLaunchHands = new List<LaunchHand>();
     private int currentHandIndex = 0;
@@ -194,7 +198,6 @@ public class RigidboyPlayerController : MonoBehaviour
         UpdateHandButtons();
 
 
-
         if (mobileIcons.isMobile)
         {
             Cursor.lockState = CursorLockMode.None;
@@ -248,6 +251,13 @@ public class RigidboyPlayerController : MonoBehaviour
         }
 
         InitializeStartingHand();
+
+
+        if (StartCrouched)
+        {
+            EnterCrouch();
+
+        }
 
     }
 
@@ -654,6 +664,21 @@ public class RigidboyPlayerController : MonoBehaviour
             }
         }
 
+        float strafeAmount = Vector3.Dot(currentMoveDirection.normalized, transform.right);
+        float targetTilt = -strafeAmount * maxWeaponTilt;
+
+        Quaternion targetRotation = Quaternion.Euler(
+            grabPackManager.localEulerAngles.x,
+            grabPackManager.localEulerAngles.y,
+            targetTilt
+        );
+
+        grabPackManager.localRotation = Quaternion.Slerp(
+            grabPackManager.localRotation,
+            targetRotation,
+            weaponTiltSpeed * Time.deltaTime
+        );
+
         if (isGrounded)
         {
             playeranimations.SetBool("jump", false);
@@ -833,6 +858,11 @@ public class RigidboyPlayerController : MonoBehaviour
                 if (footstepClip != null)
                 {
                     footstepSource.PlayOneShot(footstepClip, volume);
+                    if (!IsCrouched)
+                    {
+                        NoiseEmitter.EmitNoise(transform.position, 0.4f, transform);
+
+                    }
                 }
 
                 yield return new WaitForSeconds(footstepInterval);
@@ -866,8 +896,18 @@ public class RigidboyPlayerController : MonoBehaviour
     public void SwitchHand()
     {
         playeranimations.speed = 1f;
-        targetMoveSpeed = moveSpeed;
-
+        if (squeeze)
+        {
+            targetMoveSpeed = squeezeSpeed;
+        }
+        else if (IsCrouched)
+        {
+            targetMoveSpeed = moveSpeed * crouchMultiplier;
+        }
+        else
+        {
+            targetMoveSpeed = moveSpeed;
+        }
         if (handtoSwitch == "red")
         {
             redhand();

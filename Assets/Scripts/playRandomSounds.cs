@@ -16,6 +16,18 @@ public class playRandomSounds : MonoBehaviour
         max = footsteps.Length;
     }
 
+    public void OnFootstep(AnimationEvent evt)
+    {
+
+        if (evt.animationState.weight < .5f)
+        {
+            return;
+        }
+
+        PlaySound();
+    }
+
+
     public void PlaySound()
     {
         selected = Random.Range(0, max);

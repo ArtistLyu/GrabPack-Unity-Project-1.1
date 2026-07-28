@@ -60,6 +60,11 @@ public class SettingsManager : MonoBehaviour
     private bool wheelclosing = false;
     private bool wheelopening = false;
 
+
+    public Slider masterVolumeSlider;
+
+    private const string MasterVolumeKey = "MasterVolume";
+
     void Awake()
     {
         if (Instance == null)
@@ -74,6 +79,7 @@ public class SettingsManager : MonoBehaviour
 
     void Start()
     {
+        ResumeGame();
         SetupQualityDropdown();
         SetupResolutionDropdown();
 
@@ -88,11 +94,24 @@ public class SettingsManager : MonoBehaviour
         renderScaleSlider.onValueChanged.AddListener(SetRenderScale);
         renderScaleSlider.minValue = 0.1f;
         renderScaleSlider.maxValue = 1.0f;
+        masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
+        masterVolumeSlider.minValue = 0f;
+        masterVolumeSlider.maxValue = 1f;
 
         LoadSettings();
 
+
     }
 
+    public void PauseGame()
+    {
+        Time.timeScale = 0f;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1f;
+    }
 
     public void Update()
     {
@@ -168,15 +187,9 @@ public class SettingsManager : MonoBehaviour
 
         if (state)
         {
-            Rigidbody rb = playerController.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
+
 
             UnlockCursor();
-
             playerController.StopFootsteps();
             Dragsource1.SetActive(false);
             Dragsource2.SetActive(false);
@@ -187,7 +200,8 @@ public class SettingsManager : MonoBehaviour
             {
                 LockCursor();
             }
-            
+            ResumeGame();
+
         }
     }
 
@@ -197,7 +211,17 @@ public class SettingsManager : MonoBehaviour
         qualityDropdown.AddOptions(new List<string>(QualitySettings.names));
     }
 
-    
+
+    public void SetMasterVolume(float value)
+    {
+        AudioListener.volume = value;
+
+        if (!isLoading)
+        {
+            PlayerPrefs.SetFloat(MasterVolumeKey, value);
+        }
+    }
+
     void SetupResolutionDropdown()
     {
         resolutions = Screen.resolutions;
@@ -263,7 +287,7 @@ public class SettingsManager : MonoBehaviour
 
         renderTexture = new RenderTexture(width, height, 24);
 
-        playerCamera.targetTexture = renderTexture;
+        //playerCamera.targetTexture = renderTexture;
 
         if (renderImage != null)
         {
@@ -304,12 +328,10 @@ public class SettingsManager : MonoBehaviour
 
     void LoadSettings()
     {
-        // Sensitivity
         float savedSensitivity = PlayerPrefs.GetFloat(SensitivityKey, 1.5f);
         sensitivitySlider.value = savedSensitivity;
         SetSensitivity(savedSensitivity);
 
-        //Quality (Mobile Override)
         bool hasSavedQuality = PlayerPrefs.HasKey(QualityKey);
 
         int savedQuality;
@@ -327,12 +349,10 @@ public class SettingsManager : MonoBehaviour
         qualityDropdown.value = savedQuality;
         SetQuality(savedQuality);
 
-        // VSync
         int savedVSync = PlayerPrefs.GetInt(VSyncKey, 0);
         vSyncToggle.isOn = savedVSync == 1;
         SetVSync(vSyncToggle.isOn);
 
-        // Fullscreen (Skip On Mobile)
         if (!Application.isMobilePlatform)
         {
             int savedFullScreen = PlayerPrefs.GetInt(FullScreenKey, 1);
@@ -345,7 +365,6 @@ public class SettingsManager : MonoBehaviour
             resolutionDropdown.gameObject.SetActive(false);
         }
 
-        //Resolution (PC Only)
         if (!Application.isMobilePlatform)
         {
             int savedResolution = PlayerPrefs.GetInt(ResolutionKey, resolutionDropdown.value);
@@ -360,6 +379,10 @@ public class SettingsManager : MonoBehaviour
         float savedScale = PlayerPrefs.GetFloat(RenderScaleKey, 1f);
         renderScaleSlider.value = savedScale;
         SetRenderScale(savedScale);
+
+        float savedVolume = PlayerPrefs.GetFloat(MasterVolumeKey, 1f);
+        masterVolumeSlider.value = savedVolume;
+        SetMasterVolume(savedVolume);
 
         isLoading = false;
     }

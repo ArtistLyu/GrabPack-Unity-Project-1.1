@@ -23,6 +23,13 @@ public class BatterySOcket : MonoBehaviour
         if (currentBattery != null)
             return;
 
+        LaunchHand hand = other.GetComponent<LaunchHand>();
+        if (hand != null)
+        {
+            hand.DropBattery();
+
+        }
+
         if ((batteryLayer & (1 << other.gameObject.layer)) == 0)
             return;
 
